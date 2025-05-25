@@ -1,113 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Price Calculator</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f7f9fc;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #74ebd5, #acb6e5);
+      margin: 0;
+      padding: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
     .container {
-      background-color: #ffffff;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 450px;
       width: 100%;
+      text-align: center;
+    }
+    .logo {
+      width: 100px;
+      margin-bottom: 20px;
     }
     h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #333;
+      margin-bottom: 20px;
     }
     label {
       display: block;
-      margin-top: 15px;
-      font-weight: 600;
-      color: #444;
+      margin: 15px 0 5px;
+      text-align: left;
     }
-    input {
+    input, select, button {
       width: 100%;
       padding: 10px;
-      margin-top: 5px;
+      font-size: 16px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 6px;
       box-sizing: border-box;
-      font-size: 15px;
     }
     button {
-      margin-top: 25px;
-      padding: 12px;
-      width: 100%;
-      background-color: #007BFF;
+      background: #007bff;
       color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
+      margin-top: 20px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      border: none;
     }
     button:hover {
-      background-color: #0056b3;
+      background: #0056b3;
     }
     #result {
-      margin-top: 25px;
-      font-size: 18px;
-      font-weight: 500;
+      margin-top: 20px;
+      font-weight: bold;
       text-align: center;
-      color: #222;
     }
   </style>
 </head>
-<body>
+<body onload="initOptions()">
   <div class="container">
+    <img src="logo.png" alt="Logo" class="logo">
     <h2>Price Calculator</h2>
-    <label for="name">Name</label>
-    <input type="text" id="name" placeholder="Enter your name">
 
-    <label for="banner">Banner</label>
-    <input type="text" id="banner" placeholder="Banner name or ID">
+    <label for="project">Project Type</label>
+    <select id="project" onchange="toggleOptions(); calculatePrice()">
+      <option value="banner">Banner</option>
+      <option value="vinyl">Vinyl</option>
+      <option value="flyer">Flyer</option>
+      <option value="businesscard">Business Card</option>
+      <option value="rollup">Roll-up Banner Stand</option>
+      <option value="coroplast">4mm Coroplast</option>
+    </select>
 
-    <label for="width">Width (inches)</label>
-    <input type="number" id="width" step="0.01" placeholder="Enter width in inches">
+    <!-- Common options for banner and vinyl -->
+    <div id="common-options">
+      <label for="width">Width (inches)</label>
+      <input type="number" id="width" step="0.01" placeholder="Enter width" oninput="calculatePrice()">
 
-    <label for="height">Height (inches)</label>
-    <input type="number" id="height" step="0.01" placeholder="Enter height in inches">
+      <label for="height">Height (inches)</label>
+      <input type="number" id="height" step="0.01" placeholder="Enter height" oninput="calculatePrice()">
 
-    <button onclick="calculatePrice()">Calculate Price</button>
+      <div id="grommet-options" style="display: none;">
+        <label for="grommet">Grommet Needed?</label>
+        <select id="grommet" onchange="toggleGrommetDetail(); calculatePrice()">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+        <div id="grommet-detail" style="display: none;">
+          <label for="grommetType">Grommet Type</label>
+          <select id="grommetType" onchange="calculatePrice()">
+            <option value="four">All four corners (+$5)</option>
+            <option value="around">Every 2-3 Feet all Around (+$7)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="lamination-options" style="display: none;">
+        <label for="laminated">Laminated?</label>
+        <select id="laminated" onchange="toggleLaminationDetail();
+      document.getElementById('rollup-options').style.display = project === 'rollup' ? 'block' : 'none';
+      document.getElementById('coroplast-options').style.display = project === 'coroplast' ? 'block' : 'none'; calculatePrice()">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+        <div id="lamination-detail" style="display: none;">
+          <label for="laminationType">Lamination Type</label>
+          <select id="laminationType" onchange="calculatePrice()">
+            <option value="glossy">Glossy (+30%)</option>
+            <option value="matte">Matte (+30%)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flyer-specific options -->
+    <div id="flyer-options" style="display: none;">
+      <label for="flyerSize">Flyer Size</label>
+      <select id="flyerSize" onchange="calculatePrice()">
+        <option value="8.5x11">8.5" x 11"</option>
+        <option value="8.5x5.5">8.5" x 5.5"</option>
+        <option value="11x17">11" x 17"</option>
+      </select>
+
+      <label for="flyerPaper">Paper Type</label>
+      <select id="flyerPaper" onchange="calculatePrice()">
+        <option value="100lbGlossy">100lb Glossy</option>
+      </select>
+
+      <label for="flyerSide">Print Side</label>
+      <select id="flyerSide" onchange="calculatePrice()">
+        <option value="one">One Side</option>
+        <option value="double">Double Side</option>
+      </select>
+
+      <label for="flyerQty">Quantity</label>
+      <input type="number" id="flyerQty" min="1" placeholder="Enter quantity" oninput="calculatePrice()">
+    </div>
+
+    <!-- Business Card-specific options -->
+    <div id="businesscard-options" style="display: none;">
+      <label for="bcSide">Print Side</label>
+      <select id="bcSide" onchange="calculatePrice()">
+        <option value="one">One Side</option>
+        <option value="double">Double Side</option>
+      </select>
+
+      <label for="bcQty">Quantity</label>
+      <select id="bcQty" onchange="calculatePrice()">
+        <option value="100">100</option>
+        <option value="250">250</option>
+        <option value="500">500</option>
+        <option value="1000">1000</option>
+      </select>
+
+      <label for="bcStock">Paper Stock</label>
+      <select id="bcStock" onchange="calculatePrice()">
+        <option value="glossy">Glossy</option>
+        <option value="matte">Matte</option>
+      </select>
+    </div>
+
+    
+    <!-- Roll-up Banner-specific options -->
+    <div id="rollup-options" style="display: none;">
+      <p>Size: 33.5 x 79"</p>
+
+      <label for="rollupQty">Quantity</label>
+      <input type="number" id="rollupQty" min="1" placeholder="Enter quantity" oninput="calculatePrice()">
+    </div>
+
+    
+    <!-- Coroplast-specific options -->
+    <div id="coroplast-options" style="display: none;">
+      <label for="coroplastSize">Size</label>
+      <select id="coroplastSize" onchange="calculatePrice()">
+                <option value="18x24">18&quot; x 24&quot;</option>
+        <option value="24x32">24&quot; x 32&quot;</option>
+        <option value="24x36">24&quot; x 36&quot;</option>
+        <option value="36x48">36&quot; x 48&quot;</option>
+        <option value="48x48">48&quot; x 48&quot;</option>
+        <option value="48x96">48&quot; x 96&quot;</option>
+      </select>
+
+      <label for="coroplastQty">Quantity</label>
+      <input type="number" id="coroplastQty" min="1" placeholder="Enter quantity" oninput="calculatePrice()">
+
+      <label for="coroplastSide">Print Side</label>
+      <select id="coroplastSide" onchange="calculatePrice()">
+        <option value="single">Single Sided</option>
+        <option value="double">Double Sided</option>
+      </select>
+
+      <label>
+        <input type="checkbox" id="coroplastHStake" onchange="calculatePrice()"> Include H-Stakes
+      </label>
+    </div>
 
     <div id="result"></div>
   </div>
 
   <script>
+    function initOptions() {
+      toggleOptions();
+    }function toggleOptions() {
+      const project = document.getElementById('project').value;
+      document.getElementById('flyer-options').style.display = project === 'flyer' ? 'block' : 'none';
+      document.getElementById('common-options').style.display = (project === 'flyer' || project === 'businesscard' || project === 'rollup' || project === 'poster' || project === 'coroplast') ? 'none' : 'block';
+      document.getElementById('grommet-options').style.display = project === 'banner' ? 'block' : 'none';
+      document.getElementById('lamination-options').style.display = project === 'vinyl' ? 'block' : 'none';
+      document.getElementById('businesscard-options').style.display = project === 'businesscard' ? 'block' : 'none';
+      toggleGrommetDetail();
+      toggleLaminationDetail();
+      document.getElementById('rollup-options').style.display = project === 'rollup' ? 'block' : 'none';
+      document.getElementById('coroplast-options').style.display = project === 'coroplast' ? 'block' : 'none';
+    }
+    function toggleGrommetDetail() {
+      const grommet = document.getElementById('grommet').value;
+      document.getElementById('grommet-detail').style.display = grommet === 'yes' ? 'block' : 'none';
+    }
+    function toggleLaminationDetail() {
+      const laminated = document.getElementById('laminated').value;
+      document.getElementById('lamination-detail').style.display = laminated === 'yes' ? 'block' : 'none';
+    }
     function calculatePrice() {
-      const width = parseFloat(document.getElementById('width').value);
-      const height = parseFloat(document.getElementById('height').value);
-
-      if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
-        document.getElementById('result').textContent = 'Please enter valid width and height.';
-        return;
+      const project = document.getElementById('project').value;
+      let resultText = '';
+      if (project === 'flyer') {
+        const size = document.getElementById('flyerSize').value;
+        const side = document.getElementById('flyerSide').value;
+        const qty = parseInt(document.getElementById('flyerQty').value);
+        if (isNaN(qty) || qty <= 0) {
+          document.getElementById('result').textContent = 'Enter a valid quantity.';
+          return;
+        }
+        let basePricePerPiece = 0;
+        if (qty <= 100) basePricePerPiece = side === 'one' ? 0.4 : 0.5;
+        else if (qty <= 200) basePricePerPiece = side === 'one' ? 0.35 : 0.45;
+        else if (qty <= 499) basePricePerPiece = side === 'one' ? 0.3 : 0.4;
+        else if (qty === 500) basePricePerPiece = side === 'one' ? 150/500 : 195/500;
+        else if (qty === 1000) basePricePerPiece = side === 'one' ? 215/1000 : 240/1000;
+        else {
+          document.getElementById('result').textContent = 'Quantity pricing not defined for this amount.';
+          return;
+        }
+        let multiplier = 1.0;
+        if (size === '8.5x5.5') multiplier = 0.7;
+        else if (size === '11x17') multiplier = 1.4;
+        const finalPrice = qty * basePricePerPiece * multiplier;
+        resultText = `Estimated Price: $${finalPrice.toFixed(2)}`;
+      } else if (project === 'businesscard') {
+        const side = document.getElementById('bcSide').value;
+        const qty = parseInt(document.getElementById('bcQty').value);
+        let price = 0;
+        const pricing = {
+          one: { 100: 25, 250: 35, 500: 55, 1000: 65 },
+          double: { 100: 30, 250: 40, 500: 60, 1000: 70 }
+        };
+        if (pricing[side] && pricing[side][qty]) {
+          price = pricing[side][qty];
+          resultText = `Estimated Price: $${price.toFixed(2)}`;
+        
+      
       }
+else if (project === 'coroplast') {
+        const size = document.getElementById('coroplastSize').value;
+        const qty = parseInt(document.getElementById('coroplastQty').value);
+        const side = document.getElementById('coroplastSide').value;
+        const hStake = document.getElementById('coroplastHStake').checked;
+        if (isNaN(qty) || qty <= 0) {
+          document.getElementById('result').textContent = 'Enter a valid quantity.';
+          return;
+        }
 
-      const sqft = (width * height) / 144;
-      let price = 0;
+        let unitPrice = 0;
 
-      if (sqft < 5) {
-        price = 35;
-      } else if (sqft <= 10) {
-        price = sqft * 5;
+        if (size === '48x48' || size === '48x96') {
+          if (qty > 10) {
+            document.getElementById('result').textContent = 'Max quantity for this size is 10.';
+            return;
+          }
+          unitPrice = size === '48x48' ? 80 : 150;
+        } else {
+          if (qty <= 5) unitPrice = 25;
+          else if (qty <= 10) unitPrice = 20;
+          else if (qty <= 20) unitPrice = 18;
+          else if (qty <= 30) unitPrice = 15;
+          else if (qty <= 50) unitPrice = 13.25;
+          else if (qty <= 100) unitPrice = 12.5;
+          else {
+            document.getElementById('result').textContent = 'Quantity not supported.';
+            return;
+          }
+
+          if (size === '24x32') unitPrice *= 1.3;
+          else if (size === '24x36') unitPrice *= 1.5;
+          else if (size === '36x48') unitPrice *= 1.7;
+        }
+
+        if (side === 'single') unitPrice *= 0.85;
+        if (hStake) unitPrice += 1.25;
+
+        const totalPrice = unitPrice * qty;
+        resultText = `Estimated Price: $${totalPrice.toFixed(2)} (${qty} pcs @ $${unitPrice.toFixed(2)} each)`;
+
+      } else if (project === 'rollup') {
+        const qty = parseInt(document.getElementById('rollupQty').value);
+        const price = qty * 165;
+        resultText = `Estimated Price: $${price.toFixed(2)} (Size: 33.5 x 79")`;
+
       } else {
-        price = sqft * 5;
+          resultText = 'Quantity pricing not defined.';
+        }
+      
+      
       }
+else if (project === 'coroplast') {
+        const size = document.getElementById('coroplastSize').value;
+        const qty = parseInt(document.getElementById('coroplastQty').value);
+        const side = document.getElementById('coroplastSide').value;
+        const hStake = document.getElementById('coroplastHStake').checked;
+        if (isNaN(qty) || qty <= 0) {
+          document.getElementById('result').textContent = 'Enter a valid quantity.';
+          return;
+        }
 
-      document.getElementById('result').textContent = `Estimated Price: $${price.toFixed(2)} (Area: ${sqft.toFixed(2)} sqft)`;
+        let unitPrice = 0;
+
+        if (size === '48x48' || size === '48x96') {
+          if (qty > 10) {
+            document.getElementById('result').textContent = 'Max quantity for this size is 10.';
+            return;
+          }
+          unitPrice = size === '48x48' ? 80 : 150;
+        } else {
+          if (qty <= 5) unitPrice = 25;
+          else if (qty <= 10) unitPrice = 20;
+          else if (qty <= 20) unitPrice = 18;
+          else if (qty <= 30) unitPrice = 15;
+          else if (qty <= 50) unitPrice = 13.25;
+          else if (qty <= 100) unitPrice = 12.5;
+          else {
+            document.getElementById('result').textContent = 'Quantity not supported.';
+            return;
+          }
+
+          if (size === '24x32') unitPrice *= 1.3;
+          else if (size === '24x36') unitPrice *= 1.5;
+          else if (size === '36x48') unitPrice *= 1.7;
+        }
+
+        if (side === 'single') unitPrice *= 0.85;
+        if (hStake) unitPrice += 1.25;
+
+        const totalPrice = unitPrice * qty;
+        resultText = `Estimated Price: $${totalPrice.toFixed(2)} (${qty} pcs @ $${unitPrice.toFixed(2)} each)`;
+
+      } else if (project === 'rollup') {
+        const qty = parseInt(document.getElementById('rollupQty').value);
+        const price = qty * 165;
+        resultText = `Estimated Price: $${price.toFixed(2)} (Size: 33.5 x 79")`;
+
+      } else {
+        const width = parseFloat(document.getElementById('width').value);
+        const height = parseFloat(document.getElementById('height').value);
+        if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+          document.getElementById('result').textContent = 'Enter valid width and height.';
+          return;
+        }
+        const sqft = (width * height) / 144;
+        let price = 0;
+        if (project === 'banner') {
+          if (sqft < 5) price = 35;
+          else if (sqft <= 15) price = sqft * 4.5;
+          else price = sqft * 4;
+          if (document.getElementById('grommet').value === 'yes') {
+            const gtype = document.getElementById('grommetType').value;
+            price += gtype === 'four' ? 5 : 7;
+          }
+        }
+        if (project === 'vinyl') {
+          if (sqft < 5) price = 35 * 1.1;
+          else if (sqft <= 15) price = sqft * 4.5 * 1.1;
+          else price = sqft * 4 * 1.1;
+          if (document.getElementById('laminated').value === 'yes') {
+            price *= 1.3;
+          }
+        }
+        resultText = `Estimated Price: $${price.toFixed(2)} (Area: ${sqft.toFixed(2)} sqft)`;
+      }
+      document.getElementById('result').textContent = resultText;
     }
   </script>
 </body>
